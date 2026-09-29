@@ -1,58 +1,26 @@
+# AWS Challenge 2026
 
-# Welcome to your CDK Python project!
+## Problem Statement
 
-This is a blank project for CDK development with Python.
+## Architecture Diagram
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+## Prerequisites
 
-This project is set up like a standard Python project.  The initialization
-process also creates a virtualenv within this project, stored under the `.venv`
-directory.  To create the virtualenv it assumes that there is a `python3`
-(or `python` for Windows) executable in your path with access to the `venv`
-package. If for any reason the automatic creation of the virtualenv fails,
-you can create the virtualenv manually.
+## How to deploy the solution
 
-To manually create a virtualenv on MacOS and Linux:
+## Verification of the solution
 
-```
-$ python -m venv .venv
-```
+## Clean up the solution
 
-After the init process completes and the virtualenv is created, you can use the following
-step to activate your virtualenv.
+## References
+- Refer [Working with the AWS CDK in Python](https://docs.aws.amazon.com/cdk/v2/guide/work-with-cdk-python.html) for more information.
+- [Serverless Patterns Collection](https://serverlessland.com/patterns)
 
-```
-$ source .venv/bin/activate
-```
-
-If you are a Windows platform, you would activate the virtualenv like this:
-
-```
-% .venv\Scripts\activate.bat
-```
-
-Once the virtualenv is activated, you can install the required dependencies.
-
-```
-$ pip install -r requirements.txt
-```
-
-At this point you can now synthesize the CloudFormation template for this code.
-
-```
-$ cdk synth
-```
-
-To add additional dependencies, for example other CDK libraries, just add
-them to your `requirements.txt` file and rerun the `python -m pip install -r requirements.txt`
-command.
-
-## Useful commands
-
- * `cdk ls`          list all stacks in the app
- * `cdk synth`       emits the synthesized CloudFormation template
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk docs`        open CDK documentation
-
-Enjoy!
+## Best practices
+1. Always execute commands in a virtual environment to avoid dependency conflicts.
+2. Your requirements.txt should list only top-level dependencies (modules that your app depends on directly) and not the dependencies of those libraries. To follow this, you can use the following steps:
+    - Install packages using `pip install <package_name>`.
+    - Run `pip show <package_name>` to view the package version and its dependencies.
+    - Then manually add `<package_name>==2.32.5` to your `requirements.txt` file.
+3. Developer experience
+    - Use `pylance` to prevent type errors. Refer [preventing type errors](https://docs.aws.amazon.com/cdk/v2/guide/work-with-cdk-python.html#python-managemodules)
