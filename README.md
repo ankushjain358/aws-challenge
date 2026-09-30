@@ -82,38 +82,40 @@ Create an API based on AWS services that can create a VPC with multiple subnets 
 
 ## Verification - Testing the API
 
-Test the API using the generated JWT token. Replace `<API_URL>` with the actual API URL and `<JWT_TOKEN>` with the generated JWT token
+Use an API client such as [Postman](https://www.postman.com/) or [ReqBin](https://reqbin.com/) to send requests. Set `<API_URL>` to the deployed API URL, for example `https://<api-id>.execute-api.<region>.amazonaws.com/prod`.
 
-- `<API_URL>` should be in the format `https://<api-id>.execute-api.<region>.amazonaws.com/prod`
-- `<JWT_TOKEN>` should be the `IdToken` from the previous step.
+For each protected request, set the `Authorization` header to `Bearer <JWT_TOKEN>`, using the `IdToken` from the previous step. For the create request, set the body type to JSON (`application/json`).
 
 ### 1. Health Check
-```bash
-curl -X GET <API_URL>/api/health
-```
-   
+
+- Method: `GET`
+- URL: `<API_URL>/api/health`
+- Authentication: None
+
 ### 2. Create a VPC
 
-```bash
-curl -X POST <API_URL>/api/vpcs \
--H "Authorization: Bearer <JWT_TOKEN>" \
--H "Content-Type: application/json" \
--d '{
-        "vpc_name": "my-vpc",
-        "cidr_block": "10.0.0.0/16"
-    }'
-```
+- Method: `POST`
+- URL: `<API_URL>/api/vpcs`
+- Body:
+   ```json
+   {
+      "vpc_name": "my-vpc",
+      "cidr_block": "10.0.0.0/16"
+   }
+   ```
+
+Save the `vpc_id` from the successful response for the delete request.
+
 ### 3. Get VPC details
-```bash
-curl -X GET <API_URL>/api/vpcs \
--H "Authorization: Bearer <JWT_TOKEN>"
-```
+
+- Method: `GET`
+- URL: `<API_URL>/api/vpcs`
 
 ### 4. Delete a VPC
-```bash
-curl -X DELETE <API_URL>/api/vpcs/<vpc_id> \
--H "Authorization: Bearer <JWT_TOKEN>"
-```
+
+- Method: `DELETE`
+- URL: `<API_URL>/api/vpcs/<vpc_id>`
+- Replace `<vpc_id>` with the ID returned when you created the VPC.
 
 
 ## Clean up
