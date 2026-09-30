@@ -54,29 +54,17 @@ Create an API based on AWS services that can create a VPC with multiple subnets 
 ## Verification Prerequisite - Generating JWT token
 1. Create a test user
     ```bash
-    aws cognito-idp admin-create-user \
-    --user-pool-id <USER_POOL_ID> \
-    --username test@example.com \
-    --user-attributes Name=email,Value=test@example.com Name=email_verified,Value=true \
-    --message-action SUPPRESS
+    aws cognito-idp admin-create-user --user-pool-id "<USER_POOL_ID>" --username "<EMAIL>" --user-attributes "Name=email,Value=<EMAIL>" "Name=email_verified,Value=true" --message-action SUPPRESS
     ```
 
 2. Set a permanent password
     ```bash
-    aws cognito-idp admin-set-user-password \
-    --user-pool-id <USER_POOL_ID> \
-    --username test@example.com \
-    --password 'YourPassword' \
-    --permanent
+    aws cognito-idp admin-set-user-password --user-pool-id "<USER_POOL_ID>" --username "<EMAIL>" --password "<PASSWORD>" --permanent
     ```
 
 3. Generate a JWT token
     ```bash
-    aws cognito-idp initiate-auth \
-    --client-id <APP_CLIENT_ID> \
-    --auth-flow USER_PASSWORD_AUTH \
-    --auth-parameters \
-        USERNAME=test@example.com,PASSWORD='TestPassword123!'
+    aws cognito-idp initiate-auth --client-id "<APP_CLIENT_ID>" --auth-flow USER_PASSWORD_AUTH --auth-parameters "USERNAME=<EMAIL>,PASSWORD=<PASSWORD>"
     ```
     The response contains the Cognito tokens:
     ```json
