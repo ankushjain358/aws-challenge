@@ -9,7 +9,7 @@ from aws_cdk import (
 import aws_cdk as cdk
 from constructs import Construct
 
-class AwsChallengeStack(Stack):
+class ApiStack(Stack):
 
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
@@ -27,9 +27,10 @@ class AwsChallengeStack(Stack):
         # Note:Keeping client credentials flow for now for the simplicity of the challenge
         # Else we would need to create users in pool, and then have to generate tokens for them to test the API, which is not the focus of this challenge
         app_client = userpool.add_client("aws-challenge-app-client",
+            generate_secret=True,  # Add this line to enable the client secret
             o_auth=cognito.OAuthSettings(
                 flows=cognito.OAuthFlows(
-                    client_credentials=True,
+                    client_credentials=True
                 ),
                 # scopes=[cognito.OAuthScope.custom("aws-challenge-scope")],
             )

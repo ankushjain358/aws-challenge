@@ -8,8 +8,9 @@ Create an API based on AWS services that can create a VPC with multiple subnets 
 
 ## Prerequisites
 1. Python 3.14 or later installed. Refer [Python](https://www.python.org/downloads/)
-1. Node.js 22.x or later installed. Refer [Node.js](https://nodejs.org/en/download/)
-2. Run `npm install -g aws-cdk` to install the AWS CDK CLI.
+2. Node.js 22.x or later installed. Refer [Node.js](https://nodejs.org/en/download/)
+3. Run `npm install -g aws-cdk` to install the AWS CDK CLI.
+4. Setup your AWS credentials. Refer [Configure environments to use with the AWS CDK](https://docs.aws.amazon.com/cdk/v2/guide/configure-env.html)
 
 ## Build the solution (Synth)
 1. Clone the repository:
@@ -33,7 +34,16 @@ Create an API based on AWS services that can create a VPC with multiple subnets 
    ```
    > Note: If you encounter issue in synth, then set JSII_SILENCE_WARNING_UNTESTED_NODE_VERSION environment variable to true and try again.
 
-## How to deploy the solution
+## Deploy the solution
+1. Make sure you are in the root directory of the project and your virtual environment is activated.
+2. Bootstrap the CDK environment (if not done already):
+   ```bash
+   cdk bootstrap
+   ```
+3. Run the following command to deploy the stack:
+   ```bash
+   cdk deploy
+   ```
 
 ## Verification of the solution
 
@@ -42,6 +52,7 @@ Create an API based on AWS services that can create a VPC with multiple subnets 
 ## References
 - Refer [Working with the AWS CDK in Python](https://docs.aws.amazon.com/cdk/v2/guide/work-with-cdk-python.html) for more information.
 - [Serverless Patterns Collection](https://serverlessland.com/patterns)
+- [Powertools for AWS Lambda (Python)](https://docs.aws.amazon.com/powertools/python/latest/utilities/data_classes/)
 
 ## Best practices
 1. Always execute commands in a virtual environment to avoid dependency conflicts.

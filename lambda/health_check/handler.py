@@ -1,12 +1,13 @@
 import json
-import logging
 from typing import Any, Dict
+from aws_lambda_powertools.utilities.data_classes import APIGatewayProxyEventV2, event_source
+from aws_lambda_powertools import Logger
+from aws_lambda_powertools.utilities.typing import LambdaContext
 
-# Set up logging best practices
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logger = Logger()
 
-def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
+@event_source(data_class=APIGatewayProxyEventV2)
+def lambda_handler(event: APIGatewayProxyEventV2, context: LambdaContext) -> Dict[str, Any]:
     """
     Lambda function to perform a health check.
     """
