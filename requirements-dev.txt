@@ -1,1 +1,2 @@
 pytest==8.4.2
+aws_lambda_powertools=3.35.0

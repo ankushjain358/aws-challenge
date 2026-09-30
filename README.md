@@ -25,6 +25,7 @@ Create an API based on AWS services that can create a VPC with multiple subnets 
 3. Install the required dependencies:
    ```bash
    pip install -r requirements.txt  
+   pip install -r requirements-dev.txt  
    ```
 4. Run the following command to synthesize the CloudFormation template:
    ```bash
