@@ -82,9 +82,11 @@ Create an API based on AWS services that can create a VPC with multiple subnets 
 
 ## Verification - Testing the API
 
-Use an API client such as [Postman](https://www.postman.com/) or [ReqBin](https://reqbin.com/) to send requests. Set `<API_URL>` to the deployed API URL, for example `https://<api-id>.execute-api.<region>.amazonaws.com/prod`.
+Use an API client such as [Postman](https://www.postman.com/) or [ReqBin](https://reqbin.com/) to send requests. 
 
-For each protected request, set the `Authorization` header to `Bearer <JWT_TOKEN>`, using the `IdToken` from the previous step. For the create request, set the body type to JSON (`application/json`).
+- Set `<API_URL>` to the deployed API URL, for example `https://<api-id>.execute-api.<region>.amazonaws.com/prod`.
+- For each protected request, set the `Authorization` header to `Bearer <JWT_TOKEN>`, using the `IdToken` from the previous step. 
+- For the create request, set the body type to JSON (`application/json`).
 
 ### 1. Health Check
 
