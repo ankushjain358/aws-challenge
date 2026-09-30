@@ -56,11 +56,13 @@ Create an API based on AWS services that can create a VPC with multiple subnets 
     ```bash
     aws cognito-idp admin-create-user --user-pool-id "<USER_POOL_ID>" --username "<EMAIL>" --user-attributes "Name=email,Value=<EMAIL>" "Name=email_verified,Value=true" --message-action SUPPRESS
     ```
+   `--message-action SUPPRESS` creates the user without sending an invitation email or SMS.
 
 2. Set a permanent password
     ```bash
     aws cognito-idp admin-set-user-password --user-pool-id "<USER_POOL_ID>" --username "<EMAIL>" --password "<PASSWORD>" --permanent
     ```
+   After this command succeeds, Cognito marks the user as `CONFIRMED`, so they can sign in without a new-password challenge.
 
 3. Generate a JWT token
     ```bash
