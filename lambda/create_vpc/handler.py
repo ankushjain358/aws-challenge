@@ -5,7 +5,6 @@ from datetime import datetime, timezone
 from typing import Any, Dict
 
 import boto3
-from mypy_boto3_ec2 import EC2Client
 from aws_lambda_powertools.utilities.data_classes import APIGatewayProxyEventV2, event_source
 from aws_lambda_powertools import Logger
 from aws_lambda_powertools.utilities.typing import LambdaContext
@@ -58,7 +57,7 @@ def lambda_handler(event: APIGatewayProxyEventV2, context: LambdaContext) -> Dic
         vpc_input = validate_input(payload)
 
         # 2 Create clients
-        ec2: EC2Client = boto3.client("ec2") 
+        ec2 = boto3.client("ec2") 
         table = boto3.resource("dynamodb").Table(os.environ["TABLE_NAME"])
 
         # 3. Create VPC

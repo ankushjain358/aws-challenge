@@ -145,9 +145,9 @@ class ApiStack(Stack):
 
         # 4.3. Create resources for the API Gateway
         api_resource = api.root.add_resource("api")
-        vpc_resource = api.root.add_resource("vpcs")
-        delete_vpc_resource = vpc_resource.add_resource("{vpc_id}")
         health_check_resource = api_resource.add_resource("health")
+        vpc_resource = api_resource.add_resource("vpcs")
+        delete_vpc_resource = vpc_resource.add_resource("{vpc_id}")
 
         # 4.4. Add methods to the API Gateway resources
         vpc_resource.add_method(
