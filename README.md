@@ -129,7 +129,7 @@ curl -X DELETE <API_URL>/api/vpcs/<vpc_id> \
 ## Clean up
 Remove the deployed resources to avoid incurring charges:
 ```bash
-cdk destroy
+cdk destroy aws-challenge-api-stack
 ```
 or go to the AWS Management Console and delete the stack manually.
 
