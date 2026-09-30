@@ -1,7 +1,5 @@
 from aws_cdk import (
-    # Duration,
     Stack,
-    # aws_sqs as sqs,
     aws_cognito as cognito,
     aws_dynamodb as dynamodb,
     aws_apigateway as apigateway,
@@ -87,7 +85,22 @@ class AwsChallengeStack(Stack):
             },
         )
 
-        # 3.4 Create a lambda function for health check
+        # 3.4 Create a lambda to generate bearer token for testing the API
+        generate_token_lambda = aws_lambda.Function(
+            self,
+            "aws-challenge-generate-token-lambda",
+            function_name="aws-challenge-generate-token-lambda",
+            runtime=aws_lambda.Runtime.PYTHON_3_14,
+            handler="handler.lambda_handler",
+            code=aws_lambda.Code.from_asset("lambda/generate_token"),
+            environment={
+                "USER_POOL_ID": userpool.user_pool_id,
+                "CLIENT_ID": app_client.user_pool_client_id,
+                "CLIENT_SECRET": app_client.user_pool_client_secret.unsafe_unwrap(), # bypassing safety protections for the sake of this challenge, not recommended for production
+            },
+        )
+
+        # 3.5 Create a lambda function for health check
         health_check_lambda = aws_lambda.Function(
             self,
             "aws-challenge-health-check-lambda",
@@ -96,9 +109,8 @@ class AwsChallengeStack(Stack):
             handler="handler.lambda_handler",
             code=aws_lambda.Code.from_asset("lambda/health_check"),
         )
-      
 
-        # 3.3 Grant the Lambda functions required permissions
+        # 3.6 Grant the Lambda functions required permissions
         dynamodb_table.grant_read_write_data(create_vpc_lambda)
         dynamodb_table.grant_read_write_data(get_all_vpc_lambda)
         dynamodb_table.grant_read_write_data(delete_vpc_lambda)
@@ -136,6 +148,7 @@ class AwsChallengeStack(Stack):
         api_resource = api.root.add_resource("api")
         vpc_resource = api.root.add_resource("vpcs")
         health_check_resource = api_resource.add_resource("health")
+        generate_token_resource = api_resource.add_resource("generate-token")
 
         # 4.4. Add methods to the API Gateway resources
         vpc_resource.add_method(
@@ -159,19 +172,21 @@ class AwsChallengeStack(Stack):
             authorizer=authorizer,
         )
 
+        generate_token_resource.add_method(
+            "POST",
+            apigateway.LambdaIntegration(generate_token_lambda),
+            authorization_type=apigateway.AuthorizationType.NONE,
+        )
+
         health_check_resource.add_method(
             "GET",
             apigateway.LambdaIntegration(health_check_lambda),
             authorization_type=apigateway.AuthorizationType.NONE,
         )
 
-        ## Output the API URL and Cognito User Pool ID for testing
+        ## 5. Output the API URL and Cognito User Pool ID for testing
         cdk.CfnOutput(self, "ApiUrl", value=api.url)
-        cdk.CfnOutput(self, "UserPoolId", value=userpool.user_pool_id)
-        cdk.CfnOutput(self, "UserPoolClientId", value=app_client.user_pool_client_id)
         cdk.CfnOutput(self, "DynamoDBTableName", value=dynamodb_table.table_name)
-
-                      
 
        
 

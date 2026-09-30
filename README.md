@@ -1,8 +1,10 @@
 # AWS Challenge 2026
 
 ## Problem Statement
+Create an API based on AWS services that can create a VPC with multiple subnets and store the results. We need to be able to retrieve the data of created resources from the API. The code should be written in Python. The API should be protected with an authentication layer. Authorization should be open to all authenticated users. 
 
 ## Architecture Diagram
+![Architecture Diagram](docs/architecture_diagram.png)
 
 ## Prerequisites
 1. Python 3.14 or later installed. Refer [Python](https://www.python.org/downloads/)
