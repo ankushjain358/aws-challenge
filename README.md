@@ -15,7 +15,7 @@ Create an API based on AWS services that can create a VPC with multiple subnets 
 ## Directory Structure
 ![Directory Structure](docs/directory_structure.png)
 
-## Build the solution (Synth)
+## Build the solution (Synthesize a CDK app)
 1. Clone the repository:
    ```bash
    git clone https://github.com/ankushjain358/aws-challenge.git
@@ -98,33 +98,32 @@ Test the API using the generated JWT token. Replace `<API_URL>` with the actual 
 - `<JWT_TOKEN>` should be the `IdToken` from the previous step.
 
 ### 1. Health Check
-
-    ```bash
-    curl -X GET <API_URL>/api/health
-    ```
+```bash
+curl -X GET <API_URL>/api/health
+```
    
 ### 2. Create a VPC
 
-    ```bash
-    curl -X POST <API_URL>/api/vpcs \
-    -H "Authorization: Bearer <JWT_TOKEN>" \
-    -H "Content-Type: application/json" \
-    -d '{
-            "vpc_name": "my-vpc",
-            "cidr_block": "10.0.0.0/16"
-        }'
-    ```
+```bash
+curl -X POST <API_URL>/api/vpcs \
+-H "Authorization: Bearer <JWT_TOKEN>" \
+-H "Content-Type: application/json" \
+-d '{
+        "vpc_name": "my-vpc",
+        "cidr_block": "10.0.0.0/16"
+    }'
+```
 ### 3. Get VPC details
-   ```bash
-   curl -X GET <API_URL>/api/vpcs \
-   -H "Authorization: Bearer <JWT_TOKEN>"
-   ```
+```bash
+curl -X GET <API_URL>/api/vpcs \
+-H "Authorization: Bearer <JWT_TOKEN>"
+```
 
 ### 4. Delete a VPC
-   ```bash
-   curl -X DELETE <API_URL>/api/vpcs/<vpc_id> \
-   -H "Authorization: Bearer <JWT_TOKEN>"
-   ```
+```bash
+curl -X DELETE <API_URL>/api/vpcs/<vpc_id> \
+-H "Authorization: Bearer <JWT_TOKEN>"
+```
 
 
 ## Clean up
