@@ -39,11 +39,10 @@ class ApiStack(Stack):
             )
         )
 
-        # 2. Create a DynamoDB table with a primary key of "id" (string) and a sort key of "timestamp" (number)
+        # 2. Create a DynamoDB table with a primary key of "id".
         dynamodb_table = dynamodb.Table(self, "aws-challenge-metadata-table",
             table_name="aws-challenge-metadata-table",
             partition_key=dynamodb.Attribute(name="id", type=dynamodb.AttributeType.STRING),
-            sort_key=dynamodb.Attribute(name="timestamp", type=dynamodb.AttributeType.NUMBER),
             removal_policy=cdk.RemovalPolicy.DESTROY,  # NOT recommended for production
         )
 
@@ -147,6 +146,7 @@ class ApiStack(Stack):
         # 4.3. Create resources for the API Gateway
         api_resource = api.root.add_resource("api")
         vpc_resource = api.root.add_resource("vpcs")
+        delete_vpc_resource = vpc_resource.add_resource("{vpc_id}")
         health_check_resource = api_resource.add_resource("health")
 
         # 4.4. Add methods to the API Gateway resources
@@ -164,7 +164,7 @@ class ApiStack(Stack):
             authorizer=authorizer,
         )
 
-        vpc_resource.add_method(
+        delete_vpc_resource.add_method(
             "DELETE",
             apigateway.LambdaIntegration(delete_vpc_lambda),
             authorization_type=apigateway.AuthorizationType.COGNITO,
@@ -181,15 +181,3 @@ class ApiStack(Stack):
         cdk.CfnOutput(self, "ApiUrl", value=api.url)
         cdk.CfnOutput(self, "UserPoolId", value=userpool.user_pool_id)
         cdk.CfnOutput(self, "UserPoolClientId", value=app_client.user_pool_client_id)
-
-       
-
-## TODO
-# 0. Delete generate token lambda, create user form cli
-# 2. update diagrsms and directory structure
-# 1. Lambda functions - Done
-# 2. IAM roles for lambda functions - Done
-# 3. Pylint 
-# 4. Documentation 
-# 5. Remove unit tests     
-# 21.05  

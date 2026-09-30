@@ -48,11 +48,10 @@ Create an API based on AWS services that can create a VPC with multiple subnets 
    cdk deploy
    ```
 4. After the deployment is complete, you will see the API URL and Cognito User Pool ID in the output.
+
    ![](docs/deployment_output.png)
 
-## Verification of the solution
-
-### 1. Getting JWT token for testing the API
+## Verification Prerequisite - Generating JWT token
 1. Create a test user
     ```bash
     aws cognito-idp admin-create-user \
@@ -82,38 +81,69 @@ Create an API based on AWS services that can create a VPC with multiple subnets 
     The response contains the Cognito tokens:
     ```json
     {
-    "AuthenticationResult": {
-        "AccessToken": "...",
-        "IdToken": "...",
-        "RefreshToken": "...",
-        "ExpiresIn": 3600
-    }
+        "AuthenticationResult": {
+            "AccessToken": "...",
+            "IdToken": "...",
+            "RefreshToken": "...",
+            "ExpiresIn": 3600
+        }
     }
     ```
 
-### 2. Testing the API
-1. Use the JWT token obtained in the previous step to test the API endpoints using `curl` or Postman. For example, to create a VPC:
+## Verification - Testing the API
+
+Test the API using the generated JWT token. Replace `<API_URL>` with the actual API URL and `<JWT_TOKEN>` with the generated JWT token
+
+- `<API_URL>` should be in the format `https://<api-id>.execute-api.<region>.amazonaws.com/prod`
+- `<JWT_TOKEN>` should be the `IdToken` from the previous step.
+
+### 1. Health Check
+
     ```bash
-    curl -X POST https://<API_GATEWAY_URL>/api/vpcs \
+    curl -X GET <API_URL>/api/health
+    ```
+   
+### 2. Create a VPC
+
+    ```bash
+    curl -X POST <API_URL>/api/vpcs \
     -H "Authorization: Bearer <JWT_TOKEN>" \
     -H "Content-Type: application/json" \
     -d '{
-        "vpc_name": "MyVPC",
-        "cidr_block": "10.0.0.0/16"
-    }'
+            "vpc_name": "my-vpc",
+            "cidr_block": "10.0.0.0/16"
+        }'
+    ```
+### 3. Get VPC details
+   ```bash
+   curl -X GET <API_URL>/api/vpcs \
+   -H "Authorization: Bearer <JWT_TOKEN>"
+   ```
 
-## Clean up the solution
+### 4. Delete a VPC
+   ```bash
+   curl -X DELETE <API_URL>/api/vpcs/<vpc_id> \
+   -H "Authorization: Bearer <JWT_TOKEN>"
+   ```
+
+
+## Clean up
+Remove the deployed resources to avoid incurring charges:
+```bash
+cdk destroy
+```
+or go to the AWS Management Console and delete the stack manually.
 
 ## References
-- Refer [Working with the AWS CDK in Python](https://docs.aws.amazon.com/cdk/v2/guide/work-with-cdk-python.html) for more information.
+- [Working with the AWS CDK in Python](https://docs.aws.amazon.com/cdk/v2/guide/work-with-cdk-python.html)
 - [Serverless Patterns Collection](https://serverlessland.com/patterns)
 - [Powertools for AWS Lambda (Python)](https://docs.aws.amazon.com/powertools/python/latest/utilities/data_classes/)
 
 ## Best practices
 1. Always execute commands in a virtual environment to avoid dependency conflicts.
-2. Your requirements.txt should list only top-level dependencies (modules that your app depends on directly) and not the dependencies of those libraries. To follow this, you can use the following steps:
+2. Your `requirements.txt` should list only top-level dependencies (modules that your app depends on directly) and not the dependencies of those libraries. To follow this, you can use the following steps:
     - Install packages using `pip install <package_name>`.
     - Run `pip show <package_name>` to view the package version and its dependencies.
     - Then manually add `<package_name>==2.32.5` to your `requirements.txt` file.
 3. Developer experience
-    - Use `pylance` to prevent type errors. Refer [preventing type errors](https://docs.aws.amazon.com/cdk/v2/guide/work-with-cdk-python.html#python-managemodules)
+    - Use `pylance` to prevent type errors, and get intellisense support. Refer [preventing type errors](https://docs.aws.amazon.com/cdk/v2/guide/work-with-cdk-python.html#python-managemodules)
