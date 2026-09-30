@@ -5,6 +5,30 @@
 ## Architecture Diagram
 
 ## Prerequisites
+1. Python 3.14 or later installed. Refer [Python](https://www.python.org/downloads/)
+1. Node.js 22.x or later installed. Refer [Node.js](https://nodejs.org/en/download/)
+2. Run `npm install -g aws-cdk` to install the AWS CDK CLI.
+
+## Build the solution (Synth)
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/ankushjain358/aws-challenge.git
+   cd aws-challenge
+   ```
+2. Create a virtual environment and activate it:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows use `.venv\Scripts\activate`
+   ```
+3. Install the required dependencies:
+   ```bash
+   pip install -r requirements.txt  
+   ```
+4. Run the following command to synthesize the CloudFormation template:
+   ```bash
+   cdk synth
+   ```
+   > Note: If you encounter issue in synth, then set JSII_SILENCE_WARNING_UNTESTED_NODE_VERSION environment variable to true and try again.
 
 ## How to deploy the solution
 

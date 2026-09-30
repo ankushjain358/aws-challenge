@@ -68,7 +68,7 @@ class AwsChallengeStack(Stack):
             function_name="aws-challenge-get-all-vpc-lambda",
             runtime=aws_lambda.Runtime.PYTHON_3_14,
             handler="handler.lambda_handler",
-            code=aws_lambda.Code.from_asset("lambda/get_vpc"),
+            code=aws_lambda.Code.from_asset("lambda/get_all_vpc"),
             environment={
                 "TABLE_NAME": dynamodb_table.table_name,
             },
