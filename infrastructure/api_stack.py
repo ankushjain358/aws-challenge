@@ -14,28 +14,30 @@ class ApiStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
+        lambda_runtime = aws_lambda.Runtime.PYTHON_3_14
+        lambda_architecture = aws_lambda.Architecture.ARM_64
+        lambda_timeout = cdk.Duration.seconds(30)
+        powertools_layer = aws_lambda.LayerVersion.from_layer_version_arn(
+            self,
+            "AwsLambdaPowertoolsPythonLayer",
+            f"arn:aws:lambda:{cdk.Aws.REGION}:017000801446:layer:AWSLambdaPowertoolsPythonV3-python314-arm64:38",
+        )
+
         # 1.1. Create a Cognito User Pool with minimal configuration
         userpool = cognito.UserPool(self, "aws-challenge-user-pool",
             user_pool_name="aws-challenge-user-pool",
-            self_sign_up_enabled=True,
+            sign_in_aliases=cognito.SignInAliases(email=True, username=False, phone=False, preferred_username=False),
+            account_recovery=cognito.AccountRecovery.EMAIL_ONLY,
             removal_policy=cdk.RemovalPolicy.DESTROY,  # NOT recommended for production
-            # sign_in_aliases=cognito.SignInAliases(email=True, username=False, phone=False, preferred_username=False),
-            # account_recovery=cognito.AccountRecovery.EMAIL_ONLY
         )
 
-        # 1.2. Create an app client for the user pool with client credentials flow enabled
-        # Note:Keeping client credentials flow for now for the simplicity of the challenge
-        # Else we would need to create users in pool, and then have to generate tokens for them to test the API, which is not the focus of this challenge
+        # 1.2. Create an app client for the user pool with user password flow enabled
+        # Note:Keeping user password flow instead of OAuth flow for now for the simplicity of the challenge
         app_client = userpool.add_client("aws-challenge-app-client",
-            generate_secret=True,  # Add this line to enable the client secret
-            o_auth=cognito.OAuthSettings(
-                flows=cognito.OAuthFlows(
-                    client_credentials=True
-                ),
-                # scopes=[cognito.OAuthScope.custom("aws-challenge-scope")],
+            auth_flows=cognito.AuthFlow(
+                user_password=True,
             )
         )
-
 
         # 2. Create a DynamoDB table with a primary key of "id" (string) and a sort key of "timestamp" (number)
         dynamodb_table = dynamodb.Table(self, "aws-challenge-metadata-table",
@@ -52,7 +54,10 @@ class ApiStack(Stack):
             self,
             "aws-challenge-create-vpc-lambda",
             function_name="aws-challenge-create-vpc-lambda",
-            runtime=aws_lambda.Runtime.PYTHON_3_14,
+            runtime=lambda_runtime,
+            architecture=lambda_architecture,
+            timeout=lambda_timeout,
+            layers=[powertools_layer],
             handler="handler.lambda_handler",
             code=aws_lambda.Code.from_asset("lambda/create_vpc"),
             environment={
@@ -65,7 +70,10 @@ class ApiStack(Stack):
             self,
             "aws-challenge-get-all-vpc-lambda",
             function_name="aws-challenge-get-all-vpc-lambda",
-            runtime=aws_lambda.Runtime.PYTHON_3_14,
+            runtime=lambda_runtime,
+            architecture=lambda_architecture,
+            timeout=lambda_timeout,
+            layers=[powertools_layer],
             handler="handler.lambda_handler",
             code=aws_lambda.Code.from_asset("lambda/get_all_vpc"),
             environment={
@@ -78,7 +86,10 @@ class ApiStack(Stack):
             self,
             "aws-challenge-delete-vpc-lambda",
             function_name="aws-challenge-delete-vpc-lambda",
-            runtime=aws_lambda.Runtime.PYTHON_3_14,
+            runtime=lambda_runtime,
+            architecture=lambda_architecture,
+            timeout=lambda_timeout,
+            layers=[powertools_layer],
             handler="handler.lambda_handler",
             code=aws_lambda.Code.from_asset("lambda/delete_vpc"),
             environment={
@@ -86,27 +97,15 @@ class ApiStack(Stack):
             },
         )
 
-        # 3.4 Create a lambda to generate bearer token for testing the API
-        generate_token_lambda = aws_lambda.Function(
-            self,
-            "aws-challenge-generate-token-lambda",
-            function_name="aws-challenge-generate-token-lambda",
-            runtime=aws_lambda.Runtime.PYTHON_3_14,
-            handler="handler.lambda_handler",
-            code=aws_lambda.Code.from_asset("lambda/generate_token"),
-            environment={
-                "USER_POOL_ID": userpool.user_pool_id,
-                "CLIENT_ID": app_client.user_pool_client_id,
-                "CLIENT_SECRET": app_client.user_pool_client_secret.unsafe_unwrap(), # bypassing safety protections for the sake of this challenge, not recommended for production
-            },
-        )
-
-        # 3.5 Create a lambda function for health check
+        # 3.4 Create a lambda function for health check
         health_check_lambda = aws_lambda.Function(
             self,
             "aws-challenge-health-check-lambda",
             function_name="aws-challenge-health-check-lambda",
-            runtime=aws_lambda.Runtime.PYTHON_3_14,
+            runtime=lambda_runtime,
+            architecture=lambda_architecture,
+            timeout=lambda_timeout,
+            layers=[powertools_layer],
             handler="handler.lambda_handler",
             code=aws_lambda.Code.from_asset("lambda/health_check"),
         )
@@ -149,7 +148,6 @@ class ApiStack(Stack):
         api_resource = api.root.add_resource("api")
         vpc_resource = api.root.add_resource("vpcs")
         health_check_resource = api_resource.add_resource("health")
-        generate_token_resource = api_resource.add_resource("generate-token")
 
         # 4.4. Add methods to the API Gateway resources
         vpc_resource.add_method(
@@ -173,12 +171,6 @@ class ApiStack(Stack):
             authorizer=authorizer,
         )
 
-        generate_token_resource.add_method(
-            "POST",
-            apigateway.LambdaIntegration(generate_token_lambda),
-            authorization_type=apigateway.AuthorizationType.NONE,
-        )
-
         health_check_resource.add_method(
             "GET",
             apigateway.LambdaIntegration(health_check_lambda),
@@ -187,14 +179,17 @@ class ApiStack(Stack):
 
         ## 5. Output the API URL and Cognito User Pool ID for testing
         cdk.CfnOutput(self, "ApiUrl", value=api.url)
-        cdk.CfnOutput(self, "DynamoDBTableName", value=dynamodb_table.table_name)
+        cdk.CfnOutput(self, "UserPoolId", value=userpool.user_pool_id)
+        cdk.CfnOutput(self, "UserPoolClientId", value=app_client.user_pool_client_id)
 
        
 
 ## TODO
-# 0. Manually create API gateway - Done
+# 0. Delete generate token lambda, create user form cli
+# 2. update diagrsms and directory structure
 # 1. Lambda functions - Done
 # 2. IAM roles for lambda functions - Done
 # 3. Pylint 
 # 4. Documentation 
-# 5. Remove unit tests       
+# 5. Remove unit tests     
+# 21.05  

@@ -12,6 +12,9 @@ Create an API based on AWS services that can create a VPC with multiple subnets 
 3. Run `npm install -g aws-cdk` to install the AWS CDK CLI.
 4. Setup your AWS credentials. Refer [Configure environments to use with the AWS CDK](https://docs.aws.amazon.com/cdk/v2/guide/configure-env.html)
 
+## Directory Structure
+![Directory Structure](docs/directory_structure.png)
+
 ## Build the solution (Synth)
 1. Clone the repository:
    ```bash
@@ -44,8 +47,60 @@ Create an API based on AWS services that can create a VPC with multiple subnets 
    ```bash
    cdk deploy
    ```
+4. After the deployment is complete, you will see the API URL and Cognito User Pool ID in the output.
+   ![](docs/deployment_output.png)
 
 ## Verification of the solution
+
+### 1. Getting JWT token for testing the API
+1. Create a test user
+    ```bash
+    aws cognito-idp admin-create-user \
+    --user-pool-id <USER_POOL_ID> \
+    --username test@example.com \
+    --user-attributes Name=email,Value=test@example.com Name=email_verified,Value=true \
+    --message-action SUPPRESS
+    ```
+
+2. Set a permanent password
+    ```bash
+    aws cognito-idp admin-set-user-password \
+    --user-pool-id <USER_POOL_ID> \
+    --username test@example.com \
+    --password 'YourPassword' \
+    --permanent
+    ```
+
+3. Generate a JWT token
+    ```bash
+    aws cognito-idp initiate-auth \
+    --client-id <APP_CLIENT_ID> \
+    --auth-flow USER_PASSWORD_AUTH \
+    --auth-parameters \
+        USERNAME=test@example.com,PASSWORD='TestPassword123!'
+    ```
+    The response contains the Cognito tokens:
+    ```json
+    {
+    "AuthenticationResult": {
+        "AccessToken": "...",
+        "IdToken": "...",
+        "RefreshToken": "...",
+        "ExpiresIn": 3600
+    }
+    }
+    ```
+
+### 2. Testing the API
+1. Use the JWT token obtained in the previous step to test the API endpoints using `curl` or Postman. For example, to create a VPC:
+    ```bash
+    curl -X POST https://<API_GATEWAY_URL>/api/vpcs \
+    -H "Authorization: Bearer <JWT_TOKEN>" \
+    -H "Content-Type: application/json" \
+    -d '{
+        "vpc_name": "MyVPC",
+        "cidr_block": "10.0.0.0/16"
+    }'
 
 ## Clean up the solution
 
